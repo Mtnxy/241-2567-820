@@ -1,0 +1,19 @@
+docker -v //docker version
+docker ps // list all runing container
+docker ps --all or docker ps -a //list all containers
+docker run hello-world //Run a container
+docker rm container_id //remove a container
+docker run -p 80:80 nginx //run container with port mapping
+docker stop container_id 
+docker exec -it container_id bash
+linux command
+ls //list all files
+pwd // Present working directory
+cd // Change directory
+cd .. // go back to the previous directory
+cd/etc/nginx // go to nginx directory
+cat file_name //Display the container of a file
+exit //ออก
+docker-compose down
+docker-compose up -d
+docker system prune
