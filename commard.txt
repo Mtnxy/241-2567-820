@@ -17,3 +17,9 @@ exit //ออก
 docker-compose down
 docker-compose up -d
 docker system prune
+
+
+get 
+host
+put
+delete
