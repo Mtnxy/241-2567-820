@@ -8,7 +8,6 @@ const port = 8000;
 
 // เก็บ user
 let users = []
-let counter = 1
 let conn = null
 
 /* GET /users สำหรับ get users ทั้งหมด
