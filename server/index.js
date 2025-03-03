@@ -1,9 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2/promise');
+const cors = require('cors');
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cors());
 const port = 8000;
 
 // เก็บ user
@@ -47,6 +49,9 @@ app.get('/testdb', (req, res) => {
     })
   })
 });
+
+
+
 /*
 app.get('/testdb-new', async (req, res) => {
     try{
@@ -70,18 +75,68 @@ app.get('/users', async (req, res) => {
 
 // path = POST /user
 app.post('/users', async(req, res) => {
-  let user = req.body;
-  const results = await conn.query('INSERT INTO users SET ?', user)
-  res.json({
-    message: "User created",
-    data: results[0]
-    });
-})
+  try {
+    let user = req.body;
+    const results = await conn.query('INSERT INTO users SET ?', user)
+    res.json({
+      message: 'User created',
+      data: results[0]
+      })
+    
+  } catch (error){
+    console.error('errorMessage:', error.message)
+    res.status(500).json({
+      message : 'something went wrong',
+      errorMessage: error.message  
+    })
+  }
+});
+
+app.get('/users/:id', async(req, res) => {
+  try{
+    let id = req.params.id;
+    const result = await conn.query('SELECT * FROM users WHERE id = ?', id)
+    if(result[0].length == 0){
+      throw {statusCode: 404, message: 'User not found'}
+    }
+    res.json(result[0][0])
+  }catch(error){
+    console.error('errorMessage:', error.message)
+    let statusCode = error.statusCode || 500
+    res.status(500).json({
+      message : 'something went wrong',
+      errorMessage: error.message  
+    })
+}
+});
+  
+
 
 //path = PUT /user/:id
-app.put('/user/:id', (req, res) => {
-  let id = req.params.id;
-  let updateUser = req.body
+app.put('/users/:id', async(req, res) => {
+ 
+  try {
+    let id = req.params.id;
+    let updateUser = req.body
+    const results = await conn.query(
+      'UPDATE users SET ? WHERE id = ?',
+      [updateUser, id]
+    )
+    res.json({
+      message: 'Update user Completed',
+      data: results[0]
+      })
+    
+  } catch (error){
+    console.error('errorMessage:', error.message)
+    res.status(500).json({
+      message : 'something went wrong',
+      errorMessage: error.message  
+    })
+  }
+});
+
+/*
   //หา user จาก id ที่ส่งมา
   let selectedIndex = users.findIndex(user => user.id == id);
   //update user นั้น
@@ -97,23 +152,31 @@ app.put('/user/:id', (req, res) => {
       user: updateUser,
       indexUpdate: selectedIndex
     }
-  });
-}
-);
+  });*/
+
+
 //Path = DELETE /user/:id
-app.delete('/user/:id', (req, res) => {
-  let id = req.params.id
-  //หา index ของ user ที่ต้องการลบ
-  let selectedIndex = users.findIndex(user => user.id == id);
-  
-  users.splice(selectedIndex, 1);
-  res.json({
-    message : "Delete Completed",
-    indexDelete : selectedIndex
-  });
+app.delete('/users/:id', async(req, res) => {
+  try {
+    let id = req.params.id;
+    let updateUser = req.body
+    const results = await conn.query(
+      'DELETE FROM users WHERE id = ?',id)
+    res.json({
+      message: 'Delete user Completed',
+      data: results[0]
+      })
+    
+  } catch (error){
+    console.error('errorMessage:', error.message)
+    res.status(500).json({
+      message : 'something went wrong',
+      errorMessage: error.message  
+    })
+  }
 });
 
-app.listen(port,async (req, res) => {
-    await initMySQL()
-    console.log('Server is running on port' + port);
+app.listen(port,async(req,res) => {
+  await initMySQL()
+  console.log('Server is running on port'+port);
 });
